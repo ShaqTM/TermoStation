@@ -1,0 +1,14 @@
+<resources>
+    <string name="title_activity_settings">Настройки</string>
+    <string name="device_name">Имя устройства</string>
+    <string name="device_mDNS">Имя mDNS</string>
+    <string name="device_ip">Адрес устройства</string>
+    <string name="device_port">Порт устройства</string>
+    <string name="searchByName">Искать по имени</string>
+    <string name="searchWiFiOnly">Только при подключении по WiFi</string>
+    <string name="categoryName">Поиск по имени</string>
+    <string name="categoryIP">Поиск по IP</string>
+    <string name="refresh_interval">Интервал обновления</string>
+    <string name="firebase_enable">Обновлять данные из FireBase</string>
+
+</resources>

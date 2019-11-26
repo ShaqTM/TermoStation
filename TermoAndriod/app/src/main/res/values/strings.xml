@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">RemoteTermo</string>
+    <string name="action_settings">Настройки</string>
+    <string name="btnSettings">Настройки</string>
+    <string name="btnSearch">Поиск</string>
+    <string name="defaultDevice">esp8266</string>
+    <string name="defaultIP">192.168.0.107</string>
+    <string name="defaultPort">45999</string>
+    <string name="appwidget_text">RemoteTermo</string>
+    <string name="add_widget">Add widget</string>
+    <string name="WiFi_off">WiFi отключен</string>
+    <string name="WiFi_noConnection">Отсутствует подключение по WiFi</string>
+    <string name="deviceNotFound">Устройство не найдено</string>
+    <string name="inside_text">Внутри</string>
+    <string name="outside_text">Снаружи</string>
+    <string name="temp_text">Темп.</string>
+    <string name="hum_text">Влажн.</string>
+    <string name="pres_text">Давление:</string>
+    <string name="graphs">Графики</string>
+    <string name="btnGraphs">Обновить графики</string>
+
+    <string name="swOutTemp">Темп. внешняя</string>
+    <string name="swInTemp">Темп. внутренняя</string>
+    <string name="swHum">Влажность</string>
+    <string name="swPres">Давление</string>
+</resources>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    tools:context="com.shaq.remotetermo.MainActivity">
+
+        <Button
+            android:id="@+id/buttonSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/btnSettings"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/buttonSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/btnSearch"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/buttonSettings" />
+
+        <Button
+            android:id="@+id/buttonGraph"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/btnGraphs"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/buttonSearch" />
+
+        <TextView
+            android:id="@+id/deviceIP"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textAlignment="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/buttonGraph" />
+
+        <TextView
+            android:id="@+id/inHum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/inTemp" />
+
+        <TextView
+            android:id="@+id/inTemp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/inHum"
+            app:layout_constraintTop_toBottomOf="@+id/deviceIP" />
+
+        <TextView
+            android:id="@+id/outTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/deviceIP" />
+
+        <TextView
+            android:id="@+id/pres"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/outTemp" />
+
+        <ImageView
+            android:id="@+id/graphView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:contentDescription="@string/graphs"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/switchHum"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <Switch
+            android:id="@+id/switchPres"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/swPres"
+            app:layout_constraintEnd_toEndOf="@+id/switchTmpOut"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/switchTmpOut" />
+
+        <Switch
+            android:id="@+id/switchTmpOut"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/swOutTemp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/pres" />
+
+        <Switch
+            android:id="@+id/switchTmpIn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/swInTemp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/inHum" />
+
+        <Switch
+            android:id="@+id/switchHum"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/swHum"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/switchTmpIn"
+            app:layout_constraintTop_toBottomOf="@+id/switchTmpIn" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
