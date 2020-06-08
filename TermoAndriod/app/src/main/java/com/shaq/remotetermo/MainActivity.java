@@ -10,6 +10,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -746,8 +747,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onBoundsChange(Rect bounds) {
-            int boundx = 20;
-            int boundy = 20;
+            int boundx = 150;
             super.onBoundsChange(bounds);
             if (timeArrayList ==null || timeArrayList.size() == 0){
                 return;
@@ -758,10 +758,10 @@ public class MainActivity extends AppCompatActivity {
             mPaintScale.setStyle(Paint.Style.STROKE);
             mPaintScale.setStrokeWidth(10);
             mPathScale.reset();
-            mPathScale.moveTo(0+boundx, 0+boundy);
-            mPathScale.lineTo(width ,0 +boundy);
+            mPathScale.moveTo(0+boundx, 0);
+            mPathScale.lineTo(width ,0 );
             mPathScale.lineTo(width ,height );
-            mPathScale.moveTo(0+boundx, 0+boundy);
+            mPathScale.moveTo(0+boundx, 0);
             mPathScale.lineTo(0+boundx, height);
             mPathScale.lineTo(width, height);
 
@@ -786,17 +786,17 @@ public class MainActivity extends AppCompatActivity {
             paint.setColor(color);
             paint.setStyle(Paint.Style.STROKE);
             paint.setStrokeWidth(10);
+            paint.setTextSize(35.0f);
             path = new Path();
             index = ind;
         }
         public void init(String key,int mWidth, int mHeight){
-            int boundx = 20;
-            int boundy = 20;
+            int boundx = 150;
             height = mHeight;
             width = mWidth;
             path.reset();
             minValue = 10000;
-            maxValue = 0;
+            maxValue = -100;
             for (Long time : timeArrayList) {
                 HashMap<String, Double> tmpValue = dataArray.get(time);
                 double value = tmpValue.get(key);
@@ -808,7 +808,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             float stepX = (float) (width-boundx) / (timeArrayList.get(timeArrayList.size() - 1) - timeArrayList.get(0));
-            float stepY = (height-boundy) / ((float) (maxValue - minValue));
+            float stepY = (height) / ((float) (maxValue - minValue));
             boolean firstPoint = true;
             for (Long time : timeArrayList) {
                 if (firstPoint) {
@@ -819,9 +819,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         public void draw(Canvas canvas){
+            paint.setStrokeWidth(10);
             canvas.drawPath(path,paint);
-            canvas.drawText(Double.toString(new BigDecimal(minValue).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()),0,index*20,paint);
-            canvas.drawText(Double.toString(new BigDecimal(maxValue).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()),0,height-100+index*20,paint);
+            paint.setStrokeWidth(2);
+            paint.setTypeface(Typeface.DEFAULT_BOLD);
+            canvas.drawText(Double.toString(new BigDecimal(maxValue).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()),0,(index+1)*paint.getTextSize(),paint);
+            canvas.drawText(Double.toString(new BigDecimal(minValue).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()),0,height-paint.getTextSize()*(4-index),paint);
         }
     }
 

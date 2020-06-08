@@ -238,6 +238,8 @@ void handleSaveSettings() {
 }
 
 
+
+
 void connectToWiFi() {
   Serial.println("Attempting to connect to WiFi");
     // Connect to WPA/WPA2 network:
@@ -258,7 +260,10 @@ void connectToWiFi() {
   Serial.println("OK!!!");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
-
+  if (WiFi.getAutoConnect() != true){
+    WiFi.setAutoConnect(true);  //on power-on automatically connects to last used hwAP
+    WiFi.setAutoReconnect(true);
+  }
 
 }
 
@@ -408,7 +413,11 @@ void loop() {
     }
     loopCounter = 0;
     timeCounter+=1;
-    Serial.println(ESP.getFreeHeap());
+    //Serial.println(ESP.getFreeHeap());
+    if (timeCounter<59){
+      return;
+    }
+    timeCounter = 0;
     sensors.requestTemperatures(); // Send the command to get temperatures
     outsideTemp = sensors.getTempCByIndex(0);
     bme.takeForcedMeasurement();
@@ -416,10 +425,6 @@ void loop() {
     insideTemp = bme.readTemperature();
     insideHumidity = bme.readHumidity();
     insidePressure = bme.readPressure()/100.0F;
-    if (timeCounter<59){
-      return;
-    }
-    timeCounter = 0;
     if (getCurrentDataCounter()){
       sendToFirebase();
     }
