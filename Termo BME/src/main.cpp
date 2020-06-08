@@ -260,10 +260,10 @@ void connectToWiFi() {
   Serial.println("OK!!!");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
-  if (WiFi.getAutoConnect() != true){
-    WiFi.setAutoConnect(true);  //on power-on automatically connects to last used hwAP
+//  if (WiFi.getAutoConnect() != true){
+//    WiFi.setAutoConnect(true);  //on power-on automatically connects to last used hwAP
     WiFi.setAutoReconnect(true);
-  }
+//  }
 
 }
 
