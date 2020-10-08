@@ -49,6 +49,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.net.DatagramPacket;
 import java.net.HttpURLConnection;
@@ -184,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
                                     textInTemp.setText(dataSnapshot.child("insideTemp").getValue().toString());
                                     textOutTemp.setText(dataSnapshot.child("outsideTemp").getValue().toString());
                                     textPres.setText(dataSnapshot.child("insidePressure").getValue().toString());
-                                    Date date = new Date(((Long)dataSnapshot.child("timeStamp").getValue()-10*60*60)*1000);
+                                    Date date = new Date(((Long)dataSnapshot.child("timeStamp").getValue())*1000);
                                     SimpleDateFormat sd = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss");
                                     textDeviceIP.setText(sd.format(date));
                                 }
@@ -692,33 +693,116 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class MyGraphDrawable extends Drawable {
+        private class Label {
+            float pos;
+            int hour;
+
+            private Label(int mHour, float mPos) {
+                pos = mPos;
+                hour = mHour;
+            }
+        }
+
+        private class MyGraphic {
+            private int index;
+            private Path path;
+            private Paint paint;
+            private double minValue;
+            private double maxValue;
+            private int height;
+            private int width;
+
+            public MyGraphic(int color, int ind) {
+                paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                paint.setColor(color);
+                paint.setStyle(Paint.Style.STROKE);
+                paint.setStrokeWidth(10);
+                paint.setTextSize(35.0f);
+                path = new Path();
+                index = ind;
+            }
+
+            public void init(String key, int mWidth, int mHeight) {
+                int boundx = 150;
+                int boundy = 100;
+                height = mHeight;
+                width = mWidth;
+                path.reset();
+                minValue = 10000;
+                maxValue = -100;
+                for (Long time : timeArrayList) {
+                    HashMap<String, Double> tmpValue = dataArray.get(time);
+                    double value = tmpValue.get(key);
+                    if (value < minValue) {
+                        minValue = value;
+                    }
+                    if (value > maxValue) {
+                        maxValue = value;
+                    }
+                }
+                float stepX = (float) (width - boundx) / (timeArrayList.get(timeArrayList.size() - 1) - timeArrayList.get(0));
+                float stepY = (height - boundy) / ((float) (maxValue - minValue));
+                boolean firstPoint = true;
+                for (Long time : timeArrayList) {
+                    if (firstPoint) {
+                        path.moveTo((time - timeArrayList.get(0)) * stepX + boundx, height - boundy - (float) ((dataArray.get(time).get(key) - minValue) * stepY));
+                        firstPoint = false;
+                    }
+                    path.lineTo((time - timeArrayList.get(0)) * stepX + boundx, height - boundy - (float) ((dataArray.get(time).get(key) - minValue) * stepY));
+                }
+            }
+
+            public void draw(Canvas canvas) {
+                paint.setStrokeWidth(10);
+                canvas.drawPath(path, paint);
+                paint.setStrokeWidth(2);
+                paint.setTypeface(Typeface.DEFAULT_BOLD);
+                canvas.drawText(Double.toString(new BigDecimal(maxValue).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()), 0, (index + 1) * paint.getTextSize(), paint);
+                canvas.drawText(Double.toString(new BigDecimal(minValue).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()), 0, height - paint.getTextSize() * (4 - index), paint);
+            }
+        }
+
         private Paint mPaintScale = new Paint(Paint.ANTI_ALIAS_FLAG);
         private Path mPathScale = new Path();
-        HashMap <String,MyGraphic> graphicHashMap = new HashMap<>();
+        HashMap<String, MyGraphic> graphicHashMap = new HashMap<>();
+        ArrayList<Label> labels = new ArrayList<>();
+        int boundx = 150;
+        int boundy = 100;
+        private int height;
+        private int width;
 
-
-
-        private MyGraphDrawable(){
+        private MyGraphDrawable() {
             super();
-            if (hum){
-                graphicHashMap.put("insideHumidity",new MyGraphic(Color.RED,graphicHashMap.size()));
+            if (hum) {
+                graphicHashMap.put("insideHumidity", new MyGraphic(Color.RED, graphicHashMap.size()));
             }
-            if (pres){
-                graphicHashMap.put("insidePressure",new MyGraphic(Color.YELLOW,graphicHashMap.size()));
+            if (pres) {
+                graphicHashMap.put("insidePressure", new MyGraphic(Color.YELLOW, graphicHashMap.size()));
             }
-            if (inTemp){
-                graphicHashMap.put("insideTemp",new MyGraphic(Color.MAGENTA,graphicHashMap.size()));
+            if (inTemp) {
+                graphicHashMap.put("insideTemp", new MyGraphic(Color.MAGENTA, graphicHashMap.size()));
             }
-            if (outTemp){
-                graphicHashMap.put("outsideTemp",new MyGraphic(Color.WHITE,graphicHashMap.size()));
+            if (outTemp) {
+                graphicHashMap.put("outsideTemp", new MyGraphic(Color.WHITE, graphicHashMap.size()));
             }
 
         }
 
         @Override
         public void draw(@NonNull Canvas canvas) {
-            canvas.drawPath(mPathScale,mPaintScale);
-            for (Map.Entry<String,MyGraphic> entry:graphicHashMap.entrySet()){
+            canvas.drawPath(mPathScale, mPaintScale);
+            mPaintScale.setStrokeWidth(2);
+            mPaintScale.setTypeface(Typeface.DEFAULT_BOLD);
+            mPaintScale.setTextSize(25.0f);
+            for (Label label : labels) {
+                float displacement = 7;
+                if (Integer.toString(label.hour).length()>1){
+                    displacement = displacement*2;
+                }
+                canvas.drawText(Integer.toString(label.hour), label.pos + boundx-displacement, height - boundy + mPaintScale.getTextSize(), mPaintScale);
+            }
+
+            for (Map.Entry<String, MyGraphic> entry : graphicHashMap.entrySet()) {
                 entry.getValue().draw(canvas);
             }
         }
@@ -730,7 +814,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void setAlpha(int alpha) {
-            for (Map.Entry<String,MyGraphic> entry:graphicHashMap.entrySet()){
+            for (Map.Entry<String, MyGraphic> entry : graphicHashMap.entrySet()) {
                 entry.getValue().paint.setAlpha(alpha);
             }
             mPaintScale.setAlpha(alpha);
@@ -739,7 +823,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void setColorFilter(@Nullable ColorFilter colorFilter) {
-            for (Map.Entry<String,MyGraphic> entry:graphicHashMap.entrySet()){
+            for (Map.Entry<String, MyGraphic> entry : graphicHashMap.entrySet()) {
                 entry.getValue().paint.setColorFilter(colorFilter);
             }
             mPaintScale.setColorFilter(colorFilter);
@@ -747,86 +831,57 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onBoundsChange(Rect bounds) {
-            int boundx = 150;
+
             super.onBoundsChange(bounds);
-            if (timeArrayList ==null || timeArrayList.size() == 0){
+            if (timeArrayList == null || timeArrayList.size() == 0) {
                 return;
             }
-            int width = bounds.width();
-            int height = bounds.height();
+            width = bounds.width();
+            height = bounds.height();
             mPaintScale.setColor(Color.GREEN);
             mPaintScale.setStyle(Paint.Style.STROKE);
             mPaintScale.setStrokeWidth(10);
             mPathScale.reset();
-            mPathScale.moveTo(0+boundx, 0);
-            mPathScale.lineTo(width ,0 );
-            mPathScale.lineTo(width ,height );
-            mPathScale.moveTo(0+boundx, 0);
-            mPathScale.lineTo(0+boundx, height);
-            mPathScale.lineTo(width, height);
+            mPathScale.moveTo(0 + boundx, 0);
+            mPathScale.lineTo(width, 0);
+            mPathScale.lineTo(width, height - boundy);
+            mPathScale.moveTo(0 + boundx, 0);
+            mPathScale.lineTo(0 + boundx, height - boundy);
+            mPathScale.lineTo(width, height - boundy);
+            long startTime = (timeArrayList.get(0)*1000);// - 10 * 60 * 60) * 1000;
+            long endTime = (timeArrayList.get(timeArrayList.size() - 1)*1000);// - 10 * 60 * 60) * 1000;
+            float stepX = (float) (width - boundx) / (endTime - startTime);
 
-            for (Map.Entry<String,MyGraphic> entry:graphicHashMap.entrySet()){
-                entry.getValue().init(entry.getKey(),width,height);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(startTime);
+
+            Calendar calendarEnd = Calendar.getInstance();
+            calendarEnd.setTimeInMillis(endTime);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            calendar.add(Calendar.HOUR_OF_DAY, 1);
+            labels.clear();
+            boolean addLabel= true;
+            while (calendar.before(calendarEnd)) {
+                float curX = (calendar.getTimeInMillis() - startTime) * stepX;
+                mPaintScale.setStrokeWidth(3);
+                mPathScale.moveTo(0 + boundx + curX, 0);
+                mPathScale.lineTo(0 + boundx + curX, height - boundy);
+                if (addLabel){
+                    labels.add(new Label(calendar.get(Calendar.HOUR_OF_DAY), curX));
+                }
+                addLabel = !addLabel;
+                calendar.add(Calendar.HOUR_OF_DAY, 1);
+            }
+
+            for (Map.Entry<String, MyGraphic> entry : graphicHashMap.entrySet()) {
+                entry.getValue().init(entry.getKey(), width, height);
             }
 
         }
+
 
     }
-
-    private class MyGraphic {
-        private int index;
-        private Path path;
-        private Paint paint;
-        private double minValue;
-        private double maxValue;
-        private int height;
-        private int width;
-        public MyGraphic(int color,int ind){
-            paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            paint.setColor(color);
-            paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeWidth(10);
-            paint.setTextSize(35.0f);
-            path = new Path();
-            index = ind;
-        }
-        public void init(String key,int mWidth, int mHeight){
-            int boundx = 150;
-            height = mHeight;
-            width = mWidth;
-            path.reset();
-            minValue = 10000;
-            maxValue = -100;
-            for (Long time : timeArrayList) {
-                HashMap<String, Double> tmpValue = dataArray.get(time);
-                double value = tmpValue.get(key);
-                if (value < minValue) {
-                    minValue = value;
-                }
-                if (value > maxValue) {
-                    maxValue = value;
-                }
-            }
-            float stepX = (float) (width-boundx) / (timeArrayList.get(timeArrayList.size() - 1) - timeArrayList.get(0));
-            float stepY = (height) / ((float) (maxValue - minValue));
-            boolean firstPoint = true;
-            for (Long time : timeArrayList) {
-                if (firstPoint) {
-                    path.moveTo((time - timeArrayList.get(0)) * stepX+boundx, height - (float) ((dataArray.get(time).get(key) - minValue) * stepY));
-                    firstPoint = false;
-                }
-                path.lineTo((time - timeArrayList.get(0)) * stepX+boundx, height - (float) ((dataArray.get(time).get(key) - minValue) * stepY));
-            }
-        }
-        public void draw(Canvas canvas){
-            paint.setStrokeWidth(10);
-            canvas.drawPath(path,paint);
-            paint.setStrokeWidth(2);
-            paint.setTypeface(Typeface.DEFAULT_BOLD);
-            canvas.drawText(Double.toString(new BigDecimal(maxValue).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()),0,(index+1)*paint.getTextSize(),paint);
-            canvas.drawText(Double.toString(new BigDecimal(minValue).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()),0,height-paint.getTextSize()*(4-index),paint);
-        }
-    }
-
 
 }
